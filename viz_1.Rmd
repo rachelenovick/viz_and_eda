@@ -131,6 +131,155 @@ weather_df |>
 
 ```
 
+## Small things
 
+```{r}
 
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) + 
+#  geom_point(alpha = 0.3) + (now I don't have points on my plot)
+  geom_smooth(se = FALSE)
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) + 
+  geom_smooth(se = FALSE) +
+  geom_point() #now points on top of smooth line (whatever you want on top put last)
+
+```
+
+Making a cool hexagon plot which shows density of points by color (communicates where most of data is)
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex()
+```
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(color = "purple") #now everything is purple, not within an aes, I'm just telling R to make it ALL       purple (or I can pick any #hex code color like below)
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(color = "#F54927")
+
+```
+
+## Univariate plots
+
+Creating a histogram of just one variable:
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin)) +
+  geom_histogram(color = "white", fill = "red")
+
+```
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin, color = name)) +
+  geom_histogram()
+
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram()
+
+#splitting into multiple histograms (better to compare in this case)
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram() +
+  facet_grid (name ~ .)
+
+```
+
+maybe a density plot?
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_density(alpha = 0.2) 
+```
+
+Trying box plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = name, y = tmin)) +
+  geom_boxplot(aes(fill = name))
+```
+
+violin plots
+
+**Anything you put in the aes statement, you are mapping, for example a color to a specific name. If you make an aesthetic change but not in the aes statement, it changes for everything, it's not different by name
+
+```{r}
+
+weather_df |> 
+   ggplot(aes(x = name, y = tmin, fill = name)) +
+   geom_violin()
+
+```
+
+ridge plot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = name)) +
+   geom_density_ridges()
+```
+
+LA: univariate plots
+
+make plots that compare precipitation across locations. Try a histogram, density plot, boxplot, violin plot, and a ridgeplot; use aesthetic mappings to make your figures readable.
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = 0.2)
+
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_histogram() +
+  facet_grid(name ~ .)
+
+#filtering the data to just look at the middle range of data (just remember you did this)
+weather_df |> 
+  filter(prcp > 5, prcp < 1000) |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = 0.2)
+
+```
+
+## Saving and embedding plots
+
+Saving plots (goes to environment, does not go to print unless you call its name)
+
+```{r}
+ggp_weather_violin =
+  weather_df |> 
+   ggplot(aes(x = name, y = tmin, fill = name)) +
+   geom_violin()
+
+ggp_weather_violin
+
+ggsave("violin_plot.pdf", ggp_weather_violin,
+       width = 8, height = 6) #you can save as .pdf, .png, .jpeg, whatever. I can also save to a folder e.g. named        plots by doing: ggsave("plots/violin_plot.pdf"
+
+```
+
+embedding plots 
+
+(Here I changed the size for this particular figure in the embedded readme)
+
+```{r, fig.width = 6, fig.height = 4}
+
+ggp_weather_violin
+
+```
 
