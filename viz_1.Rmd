@@ -1,0 +1,37 @@
+---
+title: "viz_and_eda_day1"
+output: html_document
+date: "2025-09-25"
+---
+
+```{r}
+library(tidyverse)
+library(ggridges)
+library(p8105.datasets)
+```
+
+Import the weather data
+
+```{r}
+data("weather_df")
+```
+
+Making our first plot :-)
+
+Use the `+` operator to link together your code in ggplot (kind of like the pipe operator but for ggplot)
+
+```{r}
+ggplot(data = weather_df, mapping = aes(x = tmin, y = tmax)) + #telling R which data, and which variables
+  geom_point()
+
+```
+
+
+
+
+
+
+
+
+
+
