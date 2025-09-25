@@ -103,7 +103,33 @@ weather_df |>
 
 ```
 
+Let's make a somewhat more interesting plot:
 
+More info encoded in our graph here
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) + #points a different shape for each name
+  geom_point(aes(size = prcp), alpha = 0.3) + 
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+
+```
+
+Learning assessment: write a codechain that starts with weather_df; focuses only on Central Park, converts temp to fahrenheight, makes a scatterplot of min vs. max temp, and overlays a linear regression line (using geom_smooth())
+
+```{r}
+
+weather_df |> 
+  filter (name == "CentralPark_NY") |> 
+  mutate (tmax_fh = tmax*(9/5) + 32, 
+          tmin_fh = tmin*(9/5) + 32) |> 
+  ggplot(aes(x = tmin_fh, y = tmax_fh)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = "lm") #default: '`geom_smooth()` using method = 'loess' and formula = 'y ~ x'.    We changed to `lm` for linear regression line
+
+```
 
 
 
