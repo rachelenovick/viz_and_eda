@@ -26,9 +26,82 @@ ggplot(data = weather_df, mapping = aes(x = tmin, y = tmax)) + #telling R which 
 
 ```
 
+Another way to do the same thing:
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+```
+
+This is a way to save the plot to your environment (assign it to an object):
+
+```{r}
+ggp_weather_scatterplot =
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+
+ggp_weather_scatterplot #this is how I can see what I just saved
+```
+
+Check that some rows are missing.
+
+```{r}
+
+weather_df |> 
+  filter(is.na(tmax)) #this will list out in the console all observations with missing tmax
+
+```
+
+## Fancier scatterplots!
+
+alpha ranges from 0-1 (1=totally opaque, 0=totally see-through)
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + #different color for each name
+  geom_point(alpha = 0.3) +#changes opacity of points so you can see where the highest density of data lies
+  geom_smooth(se = FALSE) #puts a smooth line of best fit (for each color); se = FALSE removes SE bar
+
+```
 
 
+Where you define aesthetics can matter
 
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = 0.3, size = 0.6) + 
+  #makes my points a different size (<1 = smaller, >1 = bigger)
+  geom_smooth(se = FALSE) 
+#difference here is I get a best fit line for the whole plot, not for each name, because the color statement was not at the top, therefore it was not inherited by every layer below
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name, size = prcp), alpha = 0.3) + #bigger points w/ more rain, smaller w/ less rain
+  geom_smooth(se = FALSE)
+```
+
+Use faceting real quick
+
+```{r}
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = 0.3, size = 0.8) +
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ name) #before squiggle `~` = row, after ~ = column --> separates into a grid of multiple plots
+
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = 0.3, size = 0.8) +
+  geom_smooth(se = FALSE) + 
+  facet_grid(name ~ .) #3 rows of plots instead of 3 columns of plots
+
+```
 
 
 
