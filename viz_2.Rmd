@@ -152,5 +152,143 @@ ggplot(data = molokai_df, aes(x = date, y = tmax, color = name)) +
   geom_line(data = central_park_df) #dataframe for the point plot and line plot comes from different place!
 ```
 
+## `patchwork`
+
+make three plots and combine using patchwork
+
+```{r}
+ggp_tmax_tmin =
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  theme(legend.position = "none") # remove legend
+
+ggp_prec_density =
+  weather_df |> 
+  filter(prcp > 0) |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = 0.5) +
+  theme(legend.position = "none")
+
+ggp_temp_season = 
+  weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(se = FALSE) +
+  theme(legend.position = "bottom")
+
+(ggp_tmax_tmin + ggp_prec_density)
+
+(ggp_tmax_tmin + ggp_prec_density) / ggp_temp_season
+```
+
+## Data manipulation
+
+let's make temperature violin plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = name, y = tmax, fill = name)) + #puts factors in alphabetical order by default (x axis name)
+  geom_violin(alpha = 0.5)
+
+#what if I want to change the order of the locations on the x axis to not appear alphabetical order?
+
+weather_df |> 
+  mutate(name = fct_relevel(name, c("Molokai_HI", "CentralPark_NY", "Waterhole_WA"))) |> 
+  #reordered for now it goes HI, NY, then WA (b/c I assigned that order)
+  ggplot(aes(x = name, y = tmax, fill = name)) + 
+  geom_violin(alpha = 0.5)
+```
+
+```{r}
+weather_df  |> 
+  mutate(name = fct_reorder(name, tmax)) |>  #puts name in order of average tmax
+  ggplot(aes(x = name, y = tmax, fill = name)) + 
+  geom_violin(alpha = 0.5)
+```
+
+What about data tidyness?
+
+```{r}
+
+#let's say I want a plot of bdi score over time. But right now the dataset isn't suited for that, untidy, bdi score spread across columns, visit number squished together with column name, we fix!
+pulse_df = 
+  haven::read_sas("data/public_pulse_data.sas7bdat") |> 
+  janitor::clean_names() |> 
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit",
+    names_prefix = "bdi_score_",
+    values_to = "bdi"
+  ) |> 
+  mutate(visit = fct_inorder(visit)) #factors in order that data appears in dataset
+
+pulse_df |> 
+  ggplot(aes(x= visit, y = bdi)) +
+  geom_boxplot() #but, the order we have originally is 01, 06, 12, bl. we want BL first! So we mutated and     then now bl is first
+
+
+```
+
+Trying to create a grid of plots with 4 columns 2 rows, dose on x axis, days until outcome is y axis, day 7 is the top row, day 8 is the bottom row, and the different columns across the top are ears, pivot, eyes and walk. 
+
+Facet: day of tx, outcome
+
+So we need dataframe with pup, dose, treatment, outcome, post-natal (pn) day
+
+
+COMPLICATED OK LET'S GO
+
+make a plot for the FAS study
+
+```{r}
+pups_df =
+  read_csv("data/FAS_pups.csv", na = c("NA", ".", ""), skip = 3) |> 
+  janitor::clean_names() |> 
+  mutate(
+    sex = case_match(
+      sex,
+      1 ~ "male",
+      2 ~ "female"
+    )
+  )
+
+litters_df =
+  read_csv("data/FAS_litters.csv", na =c("NA", ".", "")) |> 
+  janitor::clean_names() |> 
+  separate(group, into = c("dose", "tx_day"), sep = 3)
+
+fas_df =
+  left_join(pups_df, litters_df, by = "litter_number")
+
+fas_df |> 
+  select(pd_ears:tx_day) |> #only keeping some of the variables I want
+  pivot_longer(
+    pd_ears:pd_walk,
+    names_to = "outcome",
+    names_prefix = "pd_",
+    values_to = "pn_day" ) |> 
+  mutate(outcome = fct_reorder(outcome, pn_day)) |> #reordering based on average pn day outcome occurs
+  drop_na() |> 
+  ggplot(aes(x = dose, y = pn_day)) +
+  geom_violin() +
+  facet_grid(tx_day ~ outcome)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
