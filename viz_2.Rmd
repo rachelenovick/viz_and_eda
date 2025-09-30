@@ -1,0 +1,156 @@
+---
+title: "viz_2"
+output: html_document
+date: "2025-09-30"
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(patchwork)
+library(p8105.datasets)
+```
+
+import weather data 
+
+```{r}
+data("weather_df")
+```
+
+make basic scatterplot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  labs( #add labels!!!
+    x = "minimum daily temp",
+    y = "maximum daily temp",
+    title = "temperature scatterplot",
+    caption = "data from NOAA",
+    color = "location"
+  )
+```
+
+## Scales
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  labs( #add labels!!!
+    x = "minimum daily temp",
+    y = "maximum daily temp",
+    title = "temperature scatterplot",
+    caption = "data from NOAA",
+    color = "location"
+  ) +
+  scale_x_continuous(
+    breaks = c(-20, 0, 25),
+    labels = c("-20C", "0", "25")
+  ) +
+  scale_y_continuous(
+    trans = "sqrt", # square root transformation on y axis
+    limits = c(10,30) #zoom in to range of interest
+  )
+```
+
+alternatively to zoom in:
+
+```{r}
+weather_df |> 
+  filter(tmax > 10, tmin < 30) |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  labs( #add labels!!!
+    x = "minimum daily temp",
+    y = "maximum daily temp",
+    title = "temperature scatterplot",
+    caption = "data from NOAA",
+    color = "location"
+  ) +
+  scale_x_continuous(
+    breaks = c(-20, 0, 25),
+    labels = c("-20C", "0", "25")
+  )
+```
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  labs( #add labels!!!
+    x = "minimum daily temp",
+    y = "maximum daily temp",
+    title = "temperature scatterplot",
+    caption = "data from NOAA",
+    color = "location"
+  ) +
+  scale_x_continuous(
+    breaks = c(-20, 0, 25),
+    labels = c("-20C", "0", "25")
+  ) +
+  scale_color_hue(h = c(100,300)) #you can change the color palette...but like don't
+  
+```
+
+Viridis color package for pretty plots!
+
+```{r}
+ggp_temperature = #saving my base plot so i don't have to keep typing this
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  labs( #add labels!!!
+    x = "minimum daily temp",
+    y = "maximum daily temp",
+    title = "temperature scatterplot",
+    caption = "data from NOAA",
+    color = "location"
+  ) +
+  scale_x_continuous(
+    breaks = c(-20, 0, 25),
+    labels = c("-20C", "0", "25")
+  ) +
+  viridis::scale_color_viridis(
+    discrete = TRUE
+  )
+
+#alternatively to save
+
+ggsave("weather_scatterplot.png", ggp_temperature)
+```
+
+## Themes
+
+update my base plot
+
+```{r}
+ggp_temperature +
+  theme_bw() + #black and white theme
+  theme(legend.position = "bottom") #now legend is at bottom
+```
+
+```{r}
+ggp_temperature +
+  theme_minimal() + #minimal theme
+  theme(legend.position = "bottom")
+```
+
+## Adding data in geoms
+
+```{r}
+central_park_df =
+  weather_df |> 
+  filter(name =="CentralPark_NY")
+
+molokai_df =
+  weather_df |> 
+  filter(name == "Molokai_HI")
+
+ggplot(data = molokai_df, aes(x = date, y = tmax, color = name)) +
+  geom_point() +
+  geom_line(data = central_park_df) #dataframe for the point plot and line plot comes from different place!
+```
+
+
+
