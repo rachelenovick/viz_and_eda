@@ -4,3 +4,104 @@ output: html_document
 date: "2025-10-02"
 ---
 
+
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+import the weather_df
+```{r}
+data("weather_df")
+
+weather_df =
+  weather_df |> 
+  mutate(month = floor_date(date, unit = "month")) 
+  #^rounding down e.g. March 16 to March 1 (round to day 1)
+```
+
+make plots
+
+```{r}
+weather_df |> 
+  ggplot(aes(x=prcp)) +
+  geom_histogram()
+```
+
+check on extreme values
+
+```{r}
+weather_df |> 
+  filter(prcp>1000)
+```
+
+look at data again
+
+```{r}
+weather_df |> 
+  filter(tmax >=20, tmax<=30) |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) +
+  geom_point()
+```
+
+Grouping! 
+
+```{r}
+weather_df |> 
+  group_by(name, month) #can also group my month, by name and month, by name, etc.
+```
+
+group and count things
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    n=n() #grouped by name, then summarizing how many observations per group
+  )
+```
+
+```{r}
+weather_df |> 
+  group_by(month) |> 
+  summarize(
+    n = n_distinct(date) #counts up distinct instances, not just total #
+  )
+```
+
+you can count directly
+
+```{r}
+weather_df |> 
+  count(name) #counts up the # observations by name
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
