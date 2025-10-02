@@ -92,7 +92,48 @@ weather_df |>
   count(name) #counts up the # observations by name
 ```
 
+##more interesting summaries
 
+compute some extra stuff
+
+```{r}
+weather_df |> 
+  group_by(month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE), #mean tmax in each month
+    median_tmin = median(tmin, na.rm = TRUE),
+    sd_prcp = sd(prcp, na.rm = TRUE)
+  ) |> 
+  view()
+```
+
+this is still a dataframe!!
+
+```{r}
+weather_df |> 
+  group_by(name,month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.m = TRUE)
+  ) |> 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
+```
+
+sometimes format results more nicely
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.m = TRUE)
+  ) |> 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) |> 
+  knitr::kable(digits = 2) #formats table into a nice structure. digits = 2 (2 decimals)
+```
 
 
 
