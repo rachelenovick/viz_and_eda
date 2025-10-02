@@ -135,9 +135,49 @@ weather_df |>
   knitr::kable(digits = 2) #formats table into a nice structure. digits = 2 (2 decimals)
 ```
 
+##mutate with groups
 
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    center_tmax = tmax - mean_tmax
+  ) |> 
+  ggplot(aes(x = date, y = center_tmax, color = name)) +
+  geom_point()
+```
 
+look for cold days
 
+```{r}
+weather_df |> 
+  group_by(name,month) |> 
+  mutate(temp_rank = min_rank(tmax)) |> #desc(tmin) would give you "hottest" coldest day
+  filter(temp_rank < 2) #gives me coldest days by month by location
+```
+
+What about lags?
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(lagged_tmax = lag(tmax)) #looking at tmax 1 day before
+```
+
+use the variables you create
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    temp_change = tmax - lag(tmax)
+  ) |> 
+  summarize(
+    sd_tmax_change = sd(temp_change, na.rm = TRUE),
+    tmax_change_max = max(temp_change, na.rm = TRUE)
+  )
+```
 
 
 
